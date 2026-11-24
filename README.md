@@ -14,6 +14,7 @@ An API can pass its own tests and still break every consumer that depends on it.
 - **Review & merge gate** – a branch can merge only when every consumer hit by a breaking change has acknowledged it (enforced in the reducer as well as the UI). Merging promotes the proposal to main and bumps the semver: breaking → major, additions → minor, otherwise patch.
 - **Request lab** – edit a body, validate it live against either side, see when a body that works on main would fail on the branch, and send it to receive a schema-generated response (400 / 404 / 422 / success). Copy as cURL; every call is kept in Request history and can be replayed.
 - **Proposal editor** – edit the proposed schemas and status code with validation and a preview of the resulting findings, add endpoints, remove them (a breaking change) or revert to main.
+- **AI migration guide** – on the Impact tab, "Draft migration guide" sends the endpoint's classified changes and affected consumers to a language model, which streams back a release summary, concrete steps for each consumer team and a message to send to their owners, ready to copy.
 - **Activity, settings & export** – a filterable activity log, project settings, OpenAPI 3.1 export of either side, backup import/export and demo reset. Everything persists in the browser.
 
 ## Engineering decisions
@@ -22,6 +23,26 @@ An API can pass its own tests and still break every consumer that depends on it.
 - Findings, impact and gate status are derived from the two contracts rather than stored, so they can never disagree with the schemas.
 - Hand-edited schemas are parsed with a strict Zod schema, so unknown keywords and typos are rejected instead of silently ignored.
 - Radix tabs and dialogs provide accessible views. Severity always pairs colour with an icon and a label, and on small screens the diff becomes a unified single-column view.
+
+## AI migration guide: how it works
+
+- `lib/ai/migration.ts` builds a compact request from the semantic diff: every classified change, the next semver version and only the consumers a change actually touches, with the fields they send and read. It is pure TypeScript and unit-tested, including the streaming parser.
+- `worker/ai.ts` exposes `POST /api/ai/migration` on the Cloudflare Worker. It validates and size-limits the request, calls an OpenAI-compatible Chat Completions endpoint with `stream: true`, and re-streams only the text deltas as plain text.
+- The model is told to use only the given changes and consumers, so it refers to real field paths instead of inventing them. The API key never reaches the browser, and provider errors are logged on the server, not shown to users.
+- `components/contract/AiMigration.tsx` streams the guide in, can be stopped mid-answer and copies the result for Slack or a pull request.
+- Free by default: it uses Google's free Gemini API tier through its OpenAI-compatible endpoint. Set `AI_BASE_URL` to switch to OpenAI, Azure OpenAI or Groq.
+
+### Configure (free)
+
+1. Create a free Gemini API key in Google AI Studio (https://aistudio.google.com/apikey).
+2. Add it to the Worker:
+
+```bash
+npx wrangler secret put AI_API_KEY
+# optional: AI_MODEL (default gemini-flash-latest), AI_BASE_URL, AI_API_VERSION (Azure)
+```
+
+For local development put `AI_API_KEY=...` in a `.dev.vars` file (git-ignored).
 
 ## Run locally
 

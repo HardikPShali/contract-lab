@@ -207,3 +207,12 @@ select{font:inherit;color:var(--text)}
 .workspace>header .secondary{display:flex}
 .workspace>header{flex-wrap:wrap;gap:10px}
 }
+.ai-migration{border:1px solid var(--line);background:var(--panel);padding:18px}
+.ai-migration-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}
+.ai-migration-head h3{margin:0;font-size:14px;display:flex;align-items:center;gap:8px}.ai-migration-head h3 svg{width:15px;color:var(--blue)}
+.ai-migration-head p{margin:6px 0 0;color:var(--muted);font-size:12px;line-height:1.5;max-width:520px}
+.ai-migration .actions{display:flex;gap:8px;flex:none}.ai-migration .actions svg{width:14px}
+.ai-output{white-space:pre-wrap;font:13px/1.7 Inter,ui-sans-serif,system-ui,sans-serif;background:var(--panel2);border:1px solid var(--line);padding:14px;margin:16px 0 0;color:var(--text)}
+.ai-error{color:var(--red);font-size:13px;margin:14px 0 0}
+.caret{color:var(--blue);animation:blink 1s steps(1) infinite}@keyframes blink{50%{opacity:0}}
+@media(max-width:700px){.ai-migration-head{flex-direction:column}}

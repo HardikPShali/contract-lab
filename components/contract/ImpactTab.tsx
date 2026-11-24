@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { Bell, CheckCircle2, ShieldAlert, ShieldCheck, Undo2 } from "lucide-react";
 import { ackKey, endpointChanges, gateFor, impactFor } from "@/lib/contract/diff";
 import type { Endpoint } from "@/lib/contract/types";
+import { AiMigration } from "./AiMigration";
 import { Empty, SeverityTag, timeAgo } from "./shared";
 import { useContracts } from "./store";
 
@@ -74,6 +75,7 @@ export function ImpactTab({ endpoint }: { endpoint: Endpoint }) {
           );
         })}
       </div>
+      {changes.length ? <AiMigration key={endpoint.id} endpoint={endpoint} /> : null}
     </div>
   );
 }
